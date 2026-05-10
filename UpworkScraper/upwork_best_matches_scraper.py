@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from utils.job_helpers import parse_job_details
 from utils.database import create_db, connect_to_db
-from settings import config
+from UpworkScraper.settings import config
 
 
 # LOGGING
