@@ -1,3 +1,6 @@
+"""
+Module containing function that filters listings with Google Gemini based on SYSTEM PROMPT
+"""
 import os 
 import json 
 from dotenv import load_dotenv
