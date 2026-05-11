@@ -6,8 +6,10 @@ import google.generativeai as genai
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-with open("data/consts/filter_prompt.txt", "r") as f:
+
+with open(os.path.join(BASE_DIR, "..", "data", "consts", "filter_prompt.txt"), "r") as f:
     SYSTEM_PROMPT = f.read()
 
 def screen_listing(job: dict) -> dict:
