@@ -30,6 +30,7 @@ def main():
             print(f"Error processing listing {listing.get('listing_id')}: {e}")
         finally:
             mark_listing_screened(db_path, listing["listing_id"])
+            print(f"Result: {result.get('passed')}\nReason: {result.get('reason')}\n",)
             time.sleep(2)
 
 if __name__ == "__main__":
