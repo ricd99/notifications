@@ -15,7 +15,7 @@ def screen_listing(job: dict) -> dict:
     description = "\n".join(f"{k}: {v}" for k, v in job.items())
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=description,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT
