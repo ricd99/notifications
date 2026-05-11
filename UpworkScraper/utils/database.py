@@ -18,13 +18,13 @@ def create_db(conn, cursor):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS jobs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            job_id TEXT NOT NULL,
-            job_url TEXT,
-            job_title TEXT NOT NULL,
+            listing_id TEXT NOT NULL,
+            listing_url TEXT,
+            listing_title TEXT NOT NULL,
             posted_date DATETIME,
-            job_description TEXT NOT NULL,
-            job_tags TEXT,
-            job_proposals TEXT,
+            listing_description TEXT NOT NULL,
+            listing_tags TEXT,
+            proposals TEXT,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             screened BOOLEAN NOT NULL DEFAULT 0
         )

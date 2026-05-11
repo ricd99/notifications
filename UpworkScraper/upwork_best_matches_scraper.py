@@ -172,7 +172,7 @@ def main():
 
             # Get urls
             job_links = driver.find_elements("xpath", "//a[contains(@href, '/jobs/')]")
-            job_urls = [link.get_attribute("href") for link in job_links
+            listing_urls = [link.get_attribute("href") for link in job_links
                         if 'ontology_skill_uid' not in link.get_attribute("href")
                         and 'search/saved' not in link.get_attribute("href")
                         and 'search/jobs/saved' not in link.get_attribute("href")
@@ -182,29 +182,29 @@ def main():
             print('Scraping jobs...')
             counter = 0
             for j in job_posts:
-                job_url = job_urls[counter].split('/?')[0]
-                job_details = parse_job_details(j.split('\n'), job_url=job_url)
+                listing_url = listing_urls[counter].split('/?')[0]
+                job_details = parse_job_details(j.split('\n'), listing_url=listing_url)
                 # Check if the job ID already exists in the database
-                job_id = job_details.get('job_id')
-                cursor.execute('SELECT COUNT(*) FROM jobs WHERE job_id = ?', (job_id,))
+                listing_id = job_details.get('listing_id')
+                cursor.execute('SELECT COUNT(*) FROM jobs WHERE listing_id = ?', (listing_id,))
                 count = cursor.fetchone()[0]
                 if count > 0:
-                    logger.info(f'    Job ID #{job_id} already exists. Updating job proposals...')
-                    updated_proposals = job_details.get('job_proposals')
-                    # Update the job_proposals column
-                    cursor.execute('UPDATE jobs SET job_proposals = ?, updated_at = ? WHERE job_id = ?', (
-                        updated_proposals, datetime.now(), job_id))
+                    logger.info(f'    Job ID #{listing_id} already exists. Updating job proposals...')
+                    updated_proposals = job_details.get('proposals')
+                    # Update the proposals column
+                    cursor.execute('UPDATE jobs SET proposals = ?, updated_at = ? WHERE listing_id = ?', (
+                        updated_proposals, datetime.now(), listing_id))
                 else:
                     posted_date = job_details.get('posted_date')
-                    job_title = job_details.get('job_title')
-                    job_description = job_details.get('job_description')
-                    job_tags = job_details.get('job_tags')
-                    job_proposals = job_details.get('job_proposals')
-                    logger.info(f'Storing `{job_details.get("job_title")}` job in database')
+                    listing_title = job_details.get('listing_title')
+                    listing_description = job_details.get('listing_description')
+                    listing_tags = job_details.get('listing_tags')
+                    proposals = job_details.get('proposals')
+                    logger.info(f'Storing `{job_details.get("listing_title")}` job in database')
                     cursor.execute(
-                        'INSERT INTO jobs (job_id, job_url, job_title, posted_date, job_description, job_tags, '
-                        'job_proposals) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                        (job_id, job_url, job_title, posted_date, job_description, job_tags, job_proposals))
+                        'INSERT INTO jobs (listing_id, listing_url, listing_title, posted_date, listing_description, listing_tags, '
+                        'proposals) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        (listing_id, listing_url, listing_title, posted_date, listing_description, listing_tags, proposals))
                 conn.commit()
                 counter += 1
 

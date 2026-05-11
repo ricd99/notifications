@@ -5,7 +5,7 @@ import re
 from urllib.parse import unquote
 
 
-def extract_job_id_from_url(url):
+def extract_listing_id_from_url(url):
     """
     Extract the unique Upwork job cipher (e.g., 01...) from the URL.
     Strips the leading '~'.
@@ -36,17 +36,17 @@ def extract_title_from_url(url):
         return None
 
 
-def generate_job_id(job_title, job_url=None, job_description=""):
+def generate_listing_id(listing_title, listing_url=None, listing_description=""):
     """
     Generate a unique job ID. Prefers the Upwork cipher from the URL.
     """
     # 1. Try extracting from URL
-    cipher = extract_job_id_from_url(job_url)
+    cipher = extract_listing_id_from_url(listing_url)
     if cipher:
         return cipher
 
     # 2. Fallback: Hash title and description for more uniqueness than just title
-    content = f"{job_title.lower()}|{job_description[:100].lower()}"
+    content = f"{listing_title.lower()}|{listing_description[:100].lower()}"
     return hashlib.md5(content.encode('utf-8')).hexdigest()
 
 
@@ -86,17 +86,17 @@ def calculate_posted_datetime(timestamp):
     return posted_datetime
 
 
-def clean_job_proposals(job_proposals_text):
-    if not job_proposals_text:
+def clean_proposals(proposals_text):
+    if not proposals_text:
         return ''
-    if 'freelancers' in job_proposals_text:
-        job_proposals = job_proposals_text.replace('Proposals: ', '').split(' Nu')[0]
-    elif ' ago' in job_proposals_text:
-        job_proposals = ''
+    if 'freelancers' in proposals_text:
+        proposals = proposals_text.replace('Proposals: ', '').split(' Nu')[0]
+    elif ' ago' in proposals_text:
+        proposals = ''
     else:
-        job_proposals = job_proposals_text.replace(
+        proposals = proposals_text.replace(
             'Proposals: ', '').replace('Load More Jobs', '').replace('Featured', '')
-    return job_proposals.strip()
+    return proposals.strip()
 
 
 def clean_skills(skills):
@@ -118,13 +118,13 @@ def clean_skills(skills):
     return cleaned
 
 
-def parse_job_details(r, job_url=None):
+def parse_job_details(r, listing_url=None):
     """
     Parse job details from a given row of data using heuristics and URL hints.
 
     Parameters:
     - r (list): A list containing job details as lines of text.
-    - job_url (str): Optional URL of the job for better identification.
+    - listing_url (str): Optional URL of the job for better identification.
 
     Returns:
     - dict: A dictionary containing parsed job details.
@@ -132,11 +132,11 @@ def parse_job_details(r, job_url=None):
     if not r:
         return {
             'posted_date': datetime.now(),
-            'job_title': '',
-            'job_description': '',
-            'job_proposals': '',
-            'job_tags': '[]',
-            'job_id': generate_job_id('', job_url)
+            'listing_title': '',
+            'listing_description': '',
+            'proposals': '',
+            'listing_tags': '[]',
+            'listing_id': generate_listing_id('', listing_url)
         }
 
     # 1. Posted Date Heuristic
@@ -148,19 +148,19 @@ def parse_job_details(r, job_url=None):
             break
             
     # 2. Job Proposals Heuristic
-    job_proposals_text = ''
+    proposals_text = ''
     for item in r:
         if 'Proposals:' in item:
-            job_proposals_text = item
+            proposals_text = item
             break
             
     # 3. Job Description Heuristic
     # Description is the longest continuous text block
-    job_description = max(r, key=len) if r else ""
+    listing_description = max(r, key=len) if r else ""
 
     # 4. Job Title Heuristic
-    job_title = ''
-    url_title_hint = extract_title_from_url(job_url)
+    listing_title = ''
+    url_title_hint = extract_title_from_url(listing_url)
 
     # Strategy A: Use URL Hint (Strongest)
     if url_title_hint:
@@ -173,18 +173,18 @@ def parse_job_details(r, job_url=None):
             it_words = set(it_clean.lower().split())
             # If the item's words are a superset or very similar to hint words
             if hint_words.issubset(it_words) or it_words.issubset(hint_words):
-                job_title = it_clean
+                listing_title = it_clean
                 break
 
     # Strategy B: Use 'Job feedback' pattern
-    if not job_title:
+    if not listing_title:
         for item in r:
             if f"Job feedback {item}" in r:
-                job_title = item
+                listing_title = item
                 break
             
     # Strategy C: Fallback - find first valid candidate
-    if not job_title:
+    if not listing_title:
         blacklist = ['•', 'more', 'skills', 'verified', 'rating is', 'payment', 'save job', 'job feedback', 'proposals:', 'posted', 'about "']
         for item in r:
             it = item.strip()
@@ -193,11 +193,11 @@ def parse_job_details(r, job_url=None):
                 not any(it_lower == b or it_lower.startswith(b) for b in blacklist) and 
                 not any(kw in it_lower for kw in time_keywords) and 
                 len(it) < 150):
-                job_title = it
+                listing_title = it
                 break
 
     # 5. Job Tags Heuristic
-    job_tags_list = []
+    listing_tags_list = []
     try:
         skills_idx = -1
         for i, item in enumerate(r):
@@ -211,15 +211,15 @@ def parse_job_details(r, job_url=None):
                 if any(marker in r[i] for marker in ['Verified', 'Payment', 'Rating', '$', 'United States']):
                     end_idx = i
                     break
-            job_tags_list = r[skills_idx + 1 : end_idx]
+            listing_tags_list = r[skills_idx + 1 : end_idx]
     except Exception:
         pass
 
     return {
         'posted_date': calculate_posted_datetime(posted_date_str),
-        'job_title': job_title,
-        'job_description': job_description,
-        'job_proposals': clean_job_proposals(job_proposals_text),
-        'job_tags': json.dumps(clean_skills(job_tags_list)),
-        'job_id': generate_job_id(job_title, job_url, job_description)
+        'listing_title': listing_title,
+        'listing_description': listing_description,
+        'proposals': clean_proposals(proposals_text),
+        'listing_tags': json.dumps(clean_skills(listing_tags_list)),
+        'listing_id': generate_listing_id(listing_title, listing_url, listing_description)
     }

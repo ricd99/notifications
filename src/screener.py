@@ -26,7 +26,7 @@ def screen_listing(job: dict) -> dict:
     )
 
     try:
-        return json.loads(response.text)
+        return json.loads(response.text) 
     except json.JSONDecodeError: # Gemini sometimes adds unwanted markdown fences
         cleaned = response.text.strip().removeprefix("```json").removesuffix("```")
         return json.loads(cleaned)

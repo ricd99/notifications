@@ -11,10 +11,10 @@ def get_unscreened_listings(db_path: str) -> list[dict]:
         cursor.execute("SELECT * FROM jobs WHERE screened = 0")
         return [dict(row) for row in cursor.fetchall()] # unpack the Row objects into python dictionaries
     
-def mark_listing_screened(db_path:str, job_id: str) -> None:
+def mark_listing_screened(db_path:str, listing_id: str) -> None:
     with sqlite3.connect(db_path) as conn:
         conn.execute(
-            "UPDATE jobs SET screened = 1 WHERE job_id = ?",
-            (job_id,), # tuples with one element require trailing comma
+            "UPDATE jobs SET screened = 1 WHERE listing_id = ?",
+            (listing_id,), # tuples with one element require trailing comma
         )
         conn.commit()
