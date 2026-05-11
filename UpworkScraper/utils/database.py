@@ -16,7 +16,7 @@ def connect_to_db(database_name='upwork_jobs.db'):
 def create_db(conn, cursor):
     # Create the `jobs` table (if it doesn't exist)
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS jobs (
+        CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             listing_id TEXT NOT NULL,
             listing_url TEXT,
