@@ -26,8 +26,7 @@ def create_db(conn, cursor):
             job_tags TEXT,
             job_proposals TEXT,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            screened BOOLEAN NOT NULL DEFAULT 0,
-            screening_result_explanation TEXT
+            screened BOOLEAN NOT NULL DEFAULT 0
         )
     ''')
     conn.commit()
