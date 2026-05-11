@@ -1,14 +1,13 @@
 """
-Module containing function that filters listings with Google Gemini based on SYSTEM PROMPT
+Module containing function that filters listings with an LLM based on SYSTEM PROMPT
 """
 import os 
 import json 
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
+from groq import Groq
 
 load_dotenv()
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(BASE_DIR, "..", "data", "consts", "filter_prompt.txt"), "r") as f:
@@ -17,16 +16,18 @@ with open(os.path.join(BASE_DIR, "..", "data", "consts", "filter_prompt.txt"), "
 def screen_listing(job: dict) -> dict:
     description = "\n".join(f"{k}: {v}" for k, v in job.items())
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=description,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT
-        )
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": description},
+        ]
     )
 
+    text = response.choices[0].message.content
+
     try:
-        return json.loads(response.text) 
+        return json.loads(text) 
     except json.JSONDecodeError: # Gemini sometimes adds unwanted markdown fences
-        cleaned = response.text.strip().removeprefix("```json").removesuffix("```")
+        cleaned = text.strip().removeprefix("```json").removesuffix("```")
         return json.loads(cleaned)
