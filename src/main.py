@@ -2,6 +2,7 @@
 Main script
 """
 import os
+import time
 from dotenv import load_dotenv
 from database import get_unscreened_listings, mark_listing_screened
 from screener import screen_listing
@@ -29,6 +30,7 @@ def main():
             print(f"Error processing listing {listing.get('listing_id')}: {e}")
         finally:
             mark_listing_screened(db_path, listing["listing_id"])
+            time.sleep(2)
 
 if __name__ == "__main__":
     main()
