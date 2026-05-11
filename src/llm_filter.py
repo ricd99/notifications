@@ -10,7 +10,7 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 with open("data/consts/filter_prompt.txt", "r") as f:
     SYSTEM_PROMPT = f.read()
 
-def screen_job(job: dict) -> dict:
+def screen_listing(job: dict) -> dict:
     description = "\n".join(f"{k}: {v}" for k, v in job.items())
 
     response = model.generate_content(f"{SYSTEM_PROMPT}\n\nDescription:\n{description}")
