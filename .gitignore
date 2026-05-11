@@ -12,8 +12,9 @@ wheels/
 #environment variables
 .env
 
-# Sqlite
+# data
 *.db
+data/consts/
 
 # UpworkScraper
 *.log
