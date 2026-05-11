@@ -2,7 +2,7 @@ import os
 import sqlite3
 
 
-def connect_to_db(database_name='upwork_jobs.db'):
+def connect_to_db(database_name='upwork_listings.db'):
     # Get the full path to the database file
     current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
     parent_dir = os.path.dirname(current_dir)  # Get the parent directory

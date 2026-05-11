@@ -9,7 +9,7 @@ from notifier import send_notification
 
 load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "..", "UpworkScraper", "upwork_jobs.db")
+db_path = os.path.join(BASE_DIR, "..", "UpworkScraper", "upwork_listings.db")
 ntfy_topic = os.getenv("NTFY_TOPIC")
 
 def main():
