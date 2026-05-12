@@ -50,7 +50,7 @@ def get_driver_with_retry(chrome_versions, max_attempts=3):
             try:
                 logger.info(f'Attempt #{attempt+1}/{max_attempts}')
                 options = uc.ChromeOptions()
-                options.headless = False
+                options.headless = True
                 return uc.Chrome(options=options, version_main=chrome_version)
             except Exception as e:
                 logger.error(f"Failed to launch Chrome driver with version {chrome_version}. Retrying...")
@@ -89,7 +89,7 @@ def main():
             logger.info(f'Navigating to `{user_login_page}`')
             driver.get(user_login_page)
             logger.info('Pausing for windows to fully load')
-            time.sleep(25)
+            time.sleep(10)
 
             logger.info('Switching to main window')
             all_windows = driver.window_handles
