@@ -50,7 +50,7 @@ def get_driver_with_retry(chrome_versions, max_attempts=3):
             try:
                 logger.info(f'Attempt #{attempt+1}/{max_attempts}')
                 options = uc.ChromeOptions()
-                options.headless = True
+                options.headless = False
                 return uc.Chrome(options=options, version_main=chrome_version)
             except Exception as e:
                 logger.error(f"Failed to launch Chrome driver with version {chrome_version}. Retrying...")
@@ -186,13 +186,13 @@ def main():
                 job_details = parse_job_details(j.split('\n'), listing_url=listing_url)
                 # Check if the job ID already exists in the database
                 listing_id = job_details.get('listing_id')
-                cursor.execute('SELECT COUNT(*) FROM jobs WHERE listing_id = ?', (listing_id,))
+                cursor.execute('SELECT COUNT(*) FROM listings WHERE listing_id = ?', (listing_id,))
                 count = cursor.fetchone()[0]
                 if count > 0:
                     logger.info(f'    Job ID #{listing_id} already exists. Updating job proposals...')
                     updated_proposals = job_details.get('proposals')
                     # Update the proposals column
-                    cursor.execute('UPDATE jobs SET proposals = ?, updated_at = ? WHERE listing_id = ?', (
+                    cursor.execute('UPDATE listings SET proposals = ?, updated_at = ? WHERE listing_id = ?', (
                         updated_proposals, datetime.now(), listing_id))
                 else:
                     posted_date = job_details.get('posted_date')
@@ -202,7 +202,7 @@ def main():
                     proposals = job_details.get('proposals')
                     logger.info(f'Storing `{job_details.get("listing_title")}` job in database')
                     cursor.execute(
-                        'INSERT INTO jobs (listing_id, listing_url, listing_title, posted_date, listing_description, listing_tags, '
+                        'INSERT INTO listings (listing_id, listing_url, listing_title, posted_date, listing_description, listing_tags, '
                         'proposals) VALUES (?, ?, ?, ?, ?, ?, ?)',
                         (listing_id, listing_url, listing_title, posted_date, listing_description, listing_tags, proposals))
                 conn.commit()
